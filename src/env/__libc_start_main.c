@@ -72,7 +72,6 @@ void __init_libc(void *args)
 	__init_ssp((void *)auxv_internal[AT_RANDOM]);
 
 
-
 	libc.secure = 1;
 }
 
@@ -92,6 +91,7 @@ int __libc_start_main(int (*main)(int,char **,char **), void *args)
 	__libc_start_init();
 
 	/* Pass control to the application */
-	exit(main(argc_int, argv_int, NULL));
+	int retVal = main(argc_int, argv_int, NULL);
+	exit(retVal);
 	return 0;
 }

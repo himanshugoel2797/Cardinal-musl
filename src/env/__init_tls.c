@@ -8,6 +8,8 @@
 #include "atomic.h"
 #include "syscall.h"
 
+#include <cardinal/syscall_property.h>
+
 int __init_tp(void *p)
 {
 	pthread_t td = p;
@@ -15,7 +17,7 @@ int __init_tp(void *p)
 	int r = __set_thread_area(TP_ADJ(p));
 	if (r < 0) return -1;
 	if (!r) libc.can_do_threads = 1;
-	td->tid = __syscall(SYS_set_tid_address, &td->tid);
+	GetProperty(CardinalProperty_TID, 0, &td->tid);
 	td->locale = &libc.global_locale;
 	td->robust_list.head = &td->robust_list.head;
 	return 0;

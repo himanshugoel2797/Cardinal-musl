@@ -6,6 +6,9 @@
 #include "syscall.h"
 #include "libc.h"
 
+#include <cardinal/mem/server.h>
+#include <cardinal/cardinal_types.h>
+
 static void dummy(void) { }
 weak_alias(dummy, __vm_wait);
 
@@ -22,14 +25,24 @@ void *__mmap(void *start, size_t len, int prot, int flags, int fd, off_t off)
 		errno = ENOMEM;
 		return MAP_FAILED;
 	}
+
+	MMapFlags mmap_flags = MMapFlags_None;
 	if (flags & MAP_FIXED) {
 		__vm_wait();
+		mmap_flags |= MMapFlags_Fixed;
 	}
-#ifdef SYS_mmap2
-	return (void *)syscall(SYS_mmap2, start, len, prot, flags, fd, off/UNIT);
-#else
-	return (void *)syscall(SYS_mmap, start, len, prot, flags, fd, off);
-#endif
+
+	if(MMap(&start,
+    	 len,
+     	 MemoryAllocationFlags_User | MemoryAllocationFlags_Present | MemoryAllocationFlags_Read | MemoryAllocationFlags_Write,
+    	 mmap_flags,
+    	 CachingModeWriteBack) != MemoryAllocationErrors_None)
+	{
+		errno = ENOMEM;
+		return MAP_FAILED;
+	}
+
+	return start;
 }
 
 weak_alias(__mmap, mmap);

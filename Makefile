@@ -39,7 +39,7 @@ IMPH = $(addprefix $(srcdir)/, src/internal/stdio_impl.h src/internal/pthread_im
 
 LDFLAGS =
 LDFLAGS_AUTO =
-LIBCC = -lgcc
+LIBCC = -lgcc -lio -lmemserver
 CPPFLAGS =
 CFLAGS = -fshort-wchar
 CFLAGS_AUTO = -Os -pipe
